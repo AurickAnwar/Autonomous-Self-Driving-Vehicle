@@ -66,15 +66,15 @@ def process_image(image):
     results = yolo_model(frame)
     annotated_frame = results[0].plot()
 
-    color = (0,165,255)
+    color = (0,0,0)
 
     font = cv2.FONT_HERSHEY_COMPLEX
 
     cv2.putText(annotated_frame, f"Speed: {vehicle.get_velocity().length():.2f} m/s", (10,40), font, 0.8, color, 1, cv2.LINE_AA)
-    cv2.putText(annotated_frame, f"Acceleration: {vehicle.get_acceleration().length():.2f} m/s^2", (10,120), font, 0.7, color, 1, cv2.LINE_AA)
-    cv2.putText(annotated_frame, f"Brake: {vehicle.get_control().brake:.2f}", (10,160), font, 0.7, color, 1, cv2.LINE_AA)
-    cv2.putText(annotated_frame, f"Steer: {vehicle.get_control().steer:.2f}", (10,200), font, 0.7, color, 1, cv2.LINE_AA)
-    cv2.putText(annotated_frame, f"Throttle:{vehicle.get_control().throttle:.2f}", (10, 240), font, 0.7, color, 1, cv2.LINE_AA)
+    cv2.putText(annotated_frame, f"Acceleration: {vehicle.get_acceleration().length():.2f} m/s^2", (10,100), font, 0.7, color, 1, cv2.LINE_AA)
+    cv2.putText(annotated_frame, f"Brake: {vehicle.get_control().brake:.2f}", (10,140), font, 0.7, color, 1, cv2.LINE_AA)
+    cv2.putText(annotated_frame, f"Steer: {vehicle.get_control().steer:.2f}", (10,180), font, 0.7, color, 1, cv2.LINE_AA)
+    cv2.putText(annotated_frame, f"Throttle:{vehicle.get_control().throttle:.2f}", (10, 220), font, 0.7, color, 1, cv2.LINE_AA)
 
     cv2.imshow("Camera View", annotated_frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -90,12 +90,12 @@ start_time = time.time()
 while True:
     elapsed = time.time() - start_time
     
-    if elapsed < 60:
-        vehicle.apply_control(carla.VehicleControl(throttle=0.0, brake=0.0))
-    else:
+    if elapsed < 15:
+        vehicle.apply_control(carla.VehicleControl(throttle=0.0, brake=1.0))
         
-        vehicle.apply_control(carla.VehicleControl(throttle=0.5, steer=0.0))
-
+    else:
+        vehicle.set_autopilot(True)
+        
 
     transform = vehicle.get_transform()
         
@@ -107,15 +107,6 @@ while True:
     )
     
     time.sleep(0.05)
-
- 
-
-
-
-
-
-
-
-   
+  
 
 time.sleep(20)
