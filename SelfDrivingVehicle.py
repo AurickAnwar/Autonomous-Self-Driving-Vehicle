@@ -1,11 +1,15 @@
 import sys
-
 sys.path.append(r"C:\Users\auric\Downloads\CARLA_0.9.16\PythonAPI\carla\dist\carla-0.9.16-cp312-cp312-win_amd64.whl")
 import carla
 import time
 from ultralytics import YOLO
 import numpy as np
 import cv2
+#import torch
+import os
+import pandas as pd
+#import torch.nn as nn
+
 
 
 yolo_model = YOLO('yolo11m.pt')
@@ -87,26 +91,53 @@ camera.listen(process_image)
 
 start_time = time.time()
 
+car_control = []
+file_exists = os.path.exists('car_control_data.csv')
+
 while True:
     elapsed = time.time() - start_time
-    
-    if elapsed < 15:
-        vehicle.apply_control(carla.VehicleControl(throttle=0.0, brake=1.0))
-        
-    else:
-        vehicle.set_autopilot(True)
-        
+
+    vehicle.set_autopilot(True)
 
     transform = vehicle.get_transform()
-        
+
     spectator.set_transform(
         carla.Transform(
-            transform.location + carla.Location(x = 1.5 ,y=0.0, z=2.5),
+            transform.location + carla.Location(x=1.5, y=0.0, z=2.5),
             transform.rotation
         )
     )
-    
-    time.sleep(0.05)
-  
 
-time.sleep(20)
+    speed = vehicle.get_velocity().length()
+    acceleration = vehicle.get_acceleration().length()
+    steer = vehicle.get_control().steer
+    throttle = vehicle.get_control().throttle
+    brake = vehicle.get_control().brake
+
+    if steer < -0.2:
+        direction = 1 # Left turn
+    elif steer > 0.2:
+        direction = 2 # Right turn
+    elif throttle > brake:
+        direction = 3 # Forward
+    elif vehicle.get_control().reverse == True:
+        direction = 4 # Reverse
+    else:
+        direction = 0 # Straight/Idle
+
+    row = {
+        "timestamp": elapsed,
+        "speed": speed,
+        "acceleration": acceleration,
+        "steer": steer,
+        "throttle": throttle,
+        "brake": brake,
+        "direction": direction
+    }
+
+    car_control.append(row)
+    pd.DataFrame([row]).to_csv('car_control_data.csv', mode='a', header=not file_exists, index=False)
+    file_exists = True
+
+    time.sleep(0.05)
+
