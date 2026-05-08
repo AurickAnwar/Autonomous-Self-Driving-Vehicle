@@ -158,7 +158,7 @@ This project is built to bridge simulation and real-world autonomy by combining:
 
 ## 🚀 Demo
 
-![Preview](https://img.youtube.com/vi/ueAmlV6UAzs/0.jpg)
+![Preview](https://img.youtube.com/vi/ueAmlV6UAzs/1.jpg)
 
 ▶️ Full Demo: https://www.youtube.com/watch?v=ueAmlV6UAzs
 
